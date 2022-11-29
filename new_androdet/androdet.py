@@ -11,7 +11,8 @@ from pprint import pprint
 import optparse
 
 tmp = sys.path
-sys.path.append("..")
+# sys.path.append("..")
+
 from common import scores, load_dataset_properties, Timer
 sys.path.append(tmp)
 
@@ -20,7 +21,7 @@ parser = optparse.OptionParser()
 
 parser.add_option('-d', '--dataset-dir',
     action="store", dest="dataset_dir",
-    help="Directory of the text dataset created with count_words", default="../androdetPraGuard.csv")
+    help="Directory of the text dataset created with count_words", default="androdetPraGuard.csv")
 parser.add_option('-t', '--train',
     action="store", dest="train",
     help="true: force training and overwrite the model. false: the trained model will be used", default="false")
@@ -39,7 +40,7 @@ network = {'n_layers': 3, 'n_neurons': 50, 'activation': 'tanh', 'learning_rate'
 
 
 dataset = options.dataset_dir
-model_name = 'model_trained.k'
+model_name = 'new_androdet/model_trained.k'
 
 
 def create_model(input_size, output_size, n_layers, n_neurons, activation_function, learning_rate, dropout_rate, optimizer):
@@ -78,7 +79,6 @@ def predict_and_score(model, test_X, test_Y):
 
     preds[preds>=0.5] = 1
     preds[preds<0.5] = 0
-    np.savetxt("../scores.csv", preds, delimiter=",")
     print(len(preds), len(preds[preds == 0]), len(test_Y), len(test_Y[test_Y == 0]))
 
     precision, recall, f1 = scores(preds, test_Y)
@@ -110,6 +110,7 @@ def main():
     output_size = train_Y.shape[1]
     try:
         if options.fusion == 'true':
+            print("coucouc")
             raise Exception('Create data to fusion')
     except:
         model = models.load_model(model_name)
@@ -117,13 +118,10 @@ def main():
         X, Y,Z,A = load_dataset_properties(dataset, target=0, training_set_part=0.8)
         X = X[:, 1:]
         # df = pd.read_csv(dataset)
-        for index, row in X.iterrows():
-            print(len(row))
-            work = [[i]for i in row]
-            print(work)
-            mod = model.predict(work)
-            data = np.append(data,mod,axis=0)
+
         data = model.predict(X)
+        data[data >= 0.5] = 1
+        data[data < 0.5] = 0
         print(data)
         return data
     try:
