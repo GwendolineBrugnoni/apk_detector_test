@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from keras import models
 from keras import layers
 from keras import losses
@@ -23,6 +24,8 @@ parser.add_option('-d', '--dataset-dir',
 parser.add_option('-t', '--train',
     action="store", dest="train",
     help="true: force training and overwrite the model. false: the trained model will be used", default="false")
+parser.add_option('-f', '--fusion',
+                  help="true : create a array list to fusion with the others tests",default ="false" )
 
 options, args = parser.parse_args()
 
@@ -75,6 +78,7 @@ def predict_and_score(model, test_X, test_Y):
 
     preds[preds>=0.5] = 1
     preds[preds<0.5] = 0
+    np.savetxt("../scores.csv", preds, delimiter=",")
     print(len(preds), len(preds[preds == 0]), len(test_Y), len(test_Y[test_Y == 0]))
 
     precision, recall, f1 = scores(preds, test_Y)
@@ -104,7 +108,24 @@ def main():
     test_size = test_X.shape[0]
     input_size = train_X.shape[1]
     output_size = train_Y.shape[1]
-
+    try:
+        if options.fusion == 'true':
+            raise Exception('Create data to fusion')
+    except:
+        model = models.load_model(model_name)
+        data = np.empty((0, 1))
+        X, Y,Z,A = load_dataset_properties(dataset, target=0, training_set_part=0.8)
+        X = X[:, 1:]
+        # df = pd.read_csv(dataset)
+        for index, row in X.iterrows():
+            print(len(row))
+            work = [[i]for i in row]
+            print(work)
+            mod = model.predict(work)
+            data = np.append(data,mod,axis=0)
+        data = model.predict(X)
+        print(data)
+        return data
     try:
         if options.train == 'true':
             raise Exception('Force train model')
