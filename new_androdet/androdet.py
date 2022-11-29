@@ -110,19 +110,19 @@ def main():
     output_size = train_Y.shape[1]
     try:
         if options.fusion == 'true':
-            print("coucouc")
             raise Exception('Create data to fusion')
     except:
         model = models.load_model(model_name)
-        data = np.empty((0, 1))
+        score = np.empty((0, 1))
         X, Y,Z,A = load_dataset_properties(dataset, target=0, training_set_part=0.8)
         X = X[:, 1:]
-        # df = pd.read_csv(dataset)
 
         data = model.predict(X)
         data[data >= 0.5] = 1
         data[data < 0.5] = 0
-        print(data)
+        score = pd.DataFrame(data=data, columns=['Androdet'])
+
+        score.to_csv("androdet.csv", index=False)
         return data
     try:
         if options.train == 'true':
