@@ -11,8 +11,10 @@ from sklearn.metrics import f1_score, mean_squared_error, precision_score, recal
 import logging
 import optparse
 import sys
+
 tmp = sys.path
-sys.path.append("..")
+#sys.path.append("..")
+
 from common import scores, Timer, load_dataset
 sys.path.append(tmp)
 
@@ -21,10 +23,12 @@ parser = optparse.OptionParser()
 
 parser.add_option('-d', '--dataset-dir',
     action="store", dest="dataset_dir",
-    help="Directory of the text dataset created with count_words", default="../dataset_tfidf.pv")
+    help="Directory of the text dataset created with count_words", default="dataset_tfidf.pv")
 parser.add_option('-t', '--train',
     action="store", dest="train",
     help="true: force training and overwrite the model. false: the trained model will be used", default="false")
+parser.add_option('-f', '--fusion',
+                  help="true : create a array list to fusion with the others tests",default ="false" )
 
 options, args = parser.parse_args()
 
@@ -37,7 +41,7 @@ network = {'n_layers': 3, 'n_neurons': 50, 'activation': 'sigmoid', 'learning_ra
 
 target = None
 dataset = options.dataset_dir
-model_name = 'model_trained.k'
+model_name = 'bow/model_trained.k'
 
 
 def create_model(input_size, output_size, n_layers, n_neurons, activation_function, learning_rate, dropout_rate, optimizer):
@@ -99,7 +103,23 @@ def main():
     input_size = train_X.shape[1]
     output_size = train_Y.shape[1]
 
+    try:
+        if options.fusion == 'true':
+            raise Exception('Create data to fusion')
+    except:
+        model = models.load_model(model_name)
+        score = np.empty((0, 1))
+        X, Y,Z,A = load_dataset(dataset,target=target)
+        X = X[:, 1:]
 
+        data = model.predict(X)
+        data[data >= 0.5] = 1
+        data[data < 0.5] = 0
+
+        score = pd.DataFrame(data=data, columns=['BowT','BowSE','BowR','BowCE'])
+
+        score.to_csv("bow.csv", index=False)
+        return data
     try:
         if options.train == 'true':
             raise Exception('Force train model')

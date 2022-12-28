@@ -32,7 +32,6 @@ options, args = parser.parse_args()
 
 
 np.set_printoptions(threshold=sys.maxsize)
-
 logging.basicConfig(level=logging.DEBUG)
 
 
