@@ -20,6 +20,9 @@ parser = optparse.OptionParser()
 parser.add_option('-s', '--source-dataset',
     action="store", dest="dataset_dir",
     help="Directory of the dataset to process", default="../dataset/")
+parser.add_option('-d', '--text-dataset-dest',
+    action="store", dest="dataset_dest",
+    help="Destination of the text dataset that will be created (csv file for androdet, directory for opcodes)", default="dataset_entropy")
 
 options, args = parser.parse_args()
 
@@ -29,7 +32,6 @@ logging.basicConfig(level=logging.ERROR)
 
 
 root_dir = options.dataset_dir
-dataset_name = "dataset_entropy"
 
 
 def parse_apk(path):
@@ -71,7 +73,7 @@ def prepare_dataset():
     for _ in glob.iglob(root_dir + '**/*.apk', recursive=True):
         total += 1
 
-    file = open(dataset_name + ".csv", "w")
+    file = open(options.dataset_dest + ".csv", "w")
 
     with tqdm(total=total) as pbar:
         for apk_file in glob.iglob(root_dir + '**/*.apk', recursive=True):

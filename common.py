@@ -144,6 +144,13 @@ def get_target(p):
         result[3] = 1
     return result
 
+def get_new_target(p):
+    result = [0, 1]
+    if 'malwares' in p:
+        result[0] = 1
+    if 'non_obfusqués' in p:
+        result[1] = 0
+    return result
 
 class Timer:
     last_timestamp = None

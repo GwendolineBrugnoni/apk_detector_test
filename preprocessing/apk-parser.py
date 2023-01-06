@@ -18,7 +18,7 @@ import optparse
 import sys
 tmp = sys.path
 sys.path.append("../")
-from common import get_target
+from common import get_target,get_new_target
 sys.path.append(tmp)
 
 parser = optparse.OptionParser()
@@ -174,109 +174,108 @@ def count_indentifier(resource, identifier):
 #     return counter
 
 
-# def parse_apk(path):
-#     """
-#     Parse an apk file to my custom bytecode output
-#     :param path: the path to the
-#     :rtype: string
-#     """
-#     # Load our example APK
-#     a = APK(path)
-#     # Create DalvikVMFormat Object
-#     d = DalvikVMFormat(a)
-#
-#     return parse_dalvik(d)
+def parse_apk(path):
+    """
+    Parse an apk file to my custom bytecode output
+    :param path: the path to the
+    :rtype: string
+    """
+    # Load our example APK
+    a = APK(path)
+    # Create DalvikVMFormat Object
+    d = DalvikVMFormat(a)
+
+    return parse_dalvik(d)
 
 
-# def parse_dalvik(d):
-#     """
-#     Parse dalvik object to my custom bytecode output
-#     :param d: the DalvikVMFormat Object
-#     :rtype: string
-#     """
-#     notewhorty_words = pickle.load( open( "notewhorty_words.p", "rb" ) )
-#     body = ""
-#     for c in d.get_classes():
-#         #body += "Cls " + c.get_name() + "\n"
-#         body += "Class\n"
-#         for m in c.get_methods():
-#             m.get_name()
-#             #body += "Met " + m.get_name() + "\n"
-#             body += "Method\n"
-#             for i in m.get_instructions():
-#                 #myPraGuard:----  body += i.get_name() + "\t" + i.get_output() + "\n"
-#
-#                 #simplePraGuard:----
-#                 inst = i.get_name()
-#                 inst = ''.join(c for c in inst if c not in string.punctuation) #remove punctuation
-#                 body += inst + " "
-#
-#                 #dryPraGuard:------
-#                 #inst = i.get_name()
-#                 #inst = ''.join(c for c in inst if c not in string.punctuation) #remove punctuation
-#                 #if inst in notewhorty_words:
-#                 #    body += inst + " "
-#
-#             body += '\n'
-#     return body
+def parse_dalvik(d):
+    """
+    Parse dalvik object to my custom bytecode output
+    :param d: the DalvikVMFormat Object
+    :rtype: string
+    """
+    notewhorty_words = pickle.load( open( "notewhorty_words.p", "rb" ) )
+    body = ""
+    for c in d.get_classes():
+        #body += "Cls " + c.get_name() + "\n"
+        body += "Class\n"
+        for m in c.get_methods():
+            m.get_name()
+            #body += "Met " + m.get_name() + "\n"
+            body += "Method\n"
+            for i in m.get_instructions():
+                #myPraGuard:----  body += i.get_name() + "\t" + i.get_output() + "\n"
+
+                #simplePraGuard:----
+                inst = i.get_name()
+                inst = ''.join(c for c in inst if c not in string.punctuation) #remove punctuation
+                body += inst + " "
+
+                #dryPraGuard:------
+                #inst = i.get_name()
+                #inst = ''.join(c for c in inst if c not in string.punctuation) #remove punctuation
+                #if inst in notewhorty_words:
+                #    body += inst + " "
+
+            body += '\n'
+    return body
 
 
-# def create_dataset(root_dir, new_root_dir): #root_dir=options.dataset_dir, new_dataset=options.dataset_dest
-#
-#     total = 0
-#     for _ in glob.iglob(root_dir + '**/*.apk', recursive=True):
-#         total += 1
-#
-#     already_done = []
-#     for apk_file in glob.iglob(new_root_dir + '**/*.txt', recursive=True):
-#         m = re.match(new_root_dir + "(.*)\/(.+).txt", apk_file)
-#         path = m.group(1)
-#         filename = m.group(2)
-#         already_done.append(path + filename)
-#
-#
-#     with tqdm(total=total) as pbar:
-#         for apk_file in glob.iglob(root_dir + '**/*.apk', recursive=True):
-#             try:
-#                 m = re.match(root_dir + "(.*)\/(.+).apk", apk_file)
-#                 path = m.group(1)
-#                 filename = m.group(2)
-#                 if path + filename not in already_done:
-#                     if not os.path.exists(new_root_dir + path):
-#                         os.makedirs(new_root_dir + path)
-#
-#                     file = open(new_root_dir + path + "/" + filename + ".txt", "w")
-#                     body = parse_apk(apk_file)
-#                     file.write(body)
-#                     file.close()
-#             except Exception as e:
-#                 logging.error('Failed: ' + apk_file + "\t" + str(e))
-#             pbar.update(1)
-
-
-def create_dataset_androguard_IR(root_dir, new_dataset): #root_dir=options.dataset_dir, new_dataset=options.dataset_dest
+def create_dataset(root_dir, new_root_dir): #root_dir=options.dataset_dir, new_dataset=options.dataset_dest
 
     total = 0
     for _ in glob.iglob(root_dir + '**/*.apk', recursive=True):
         total += 1
 
-    data = np.empty((0,len(features_IR) + 4 + 1))
+    already_done = []
+    for apk_file in glob.iglob(new_root_dir + '**/*.txt', recursive=True):
+        m = re.match(new_root_dir + "(.*)\/(.+).txt", apk_file)
+        path = m.group(1)
+        filename = m.group(2)
+        already_done.append(path + filename)
+
+
+    with tqdm(total=total) as pbar:
+        for apk_file in glob.iglob(root_dir + '**/*.apk', recursive=True):
+            try:
+                m = re.match(root_dir + "(.*)\/(.+).apk", apk_file)
+                path = m.group(1)
+                filename = m.group(2)
+                if path + filename not in already_done:
+                    if not os.path.exists(new_root_dir + path):
+                        os.makedirs(new_root_dir + path)
+
+                    file = open(new_root_dir + path + "/" + filename + ".txt", "w")
+                    body = parse_apk(apk_file)
+                    file.write(body)
+                    file.close()
+            except Exception as e:
+                logging.error('Failed: ' + apk_file + "\t" + str(e))
+            pbar.update(1)
+
+
+def create_dataset_androguard_IR(root_dir, new_dataset): #root_dir=options.dataset_dir, new_dataset=options.dataset_dest
+
+    total = 0
+    print(root_dir)
+    for _ in glob.iglob(root_dir + '**/*.apk', recursive=True):
+        print(_)
+        total += 1
+
+    data = np.empty((0,len(features_IR) + 2 + 1))
 
     with tqdm(total=total) as pbar:
         for apk_file in glob.iglob(root_dir + '**/*.apk', recursive=True):
             try:
                 properties = get_properties_IR(apk_file)
-                print(np.append(properties, get_target(apk_file)))
-                print("data1 : \n")
-                print(apk_file)
-                data = np.append(data, [np.append([apk_file], np.append(properties, get_target(apk_file)))], axis=0)
+                data = np.append(data, [np.append([apk_file], np.append(properties, get_new_target(apk_file)))], axis=0)
                 print(data)
                 #data = np.append(data, [np.append([apk_file], np.append(properties, [1,0,0,0]))], axis=0)  #fixed target
                 pbar.update(1)
             except Exception as e:
                 logging.error('Failed: ' + apk_file + "\t" + str(e))
 
-    targets = ['trivial', 'string', 'reflection', 'class']
+    targets = ['malwares', 'obfusquation']
     df = pd.DataFrame(data=data, columns=['filename']+features_IR+targets)
     df.to_csv(new_dataset)
 
@@ -310,10 +309,10 @@ def create_dataset_androguard_IR(root_dir, new_dataset): #root_dir=options.datas
 if __name__ == '__main__':
     if options.dataset_type == 'opcodes':
         pass;
-        # create_dataset(
-        #     root_dir=options.dataset_dir,
-        #     new_root_dir=options.dataset_dest
-        # )
+        create_dataset(
+            root_dir=options.dataset_dir,
+            new_root_dir=options.dataset_dest
+        )
     elif options.dataset_type == 'androdet_IR':
         create_dataset_androguard_IR(
             root_dir=options.dataset_dir,

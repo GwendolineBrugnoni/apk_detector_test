@@ -1,3 +1,4 @@
+import sys
 from tensorflow.keras.preprocessing.text import Tokenizer
 import string
 from pathlib import Path
@@ -7,11 +8,19 @@ import os
 import logging
 import optparse
 
+tmp = sys.path
+sys.path.append("../")
+from common import get_target,get_new_target
+sys.path.append(tmp)
+
 parser = optparse.OptionParser()
 
-parser.add_option('-d', '--text-dataset-dir',
+parser.add_option('-s', '--source-dataset',
     action="store", dest="dataset_text_dir",
     help="Directory of the text dataset created with apk-parser, type opcodes", default="../dataset_text/")
+parser.add_option('-d', '--text-dataset-dest',
+    action="store", dest="dataset_dest",
+    help="Destination of the text dataset that will be created (csv file for androdet, directory for opcodes)", default="dataset_tfidf")
 parser.add_option('-t', '--type',
     action="store", dest="dataset_type",
     help="Type of dataset to build (words_count, tfidf)", default="tfidf")
@@ -66,7 +75,7 @@ def create_words_count(dataset_name):
             for word in document:
                 file.write(str(word))
                 file.write(" ")
-            for target in get_target(str(path)):
+            for target in get_new_target(str(path)):
                 file.write(str(target))
                 file.write(" ")
             file.write('\n')
@@ -122,28 +131,17 @@ def create_tfidf(dataset_name):
             for word in document[0]:
                 file.write(str(word))
                 file.write(" ")
-            for target in get_target(str(path)):
+            for target in get_new_target(str(path)):
                 file.write(str(target))
                 file.write(" ")
             file.write('\n')
             pbar.update(1)
 
 
-def get_target(p):
-    result = [0,0,0,0]
-    if 'TRIVIAL' in p:
-        result[0] = 1
-    if 'STRING_ENCRY' in p:
-        result[1] = 1
-    if 'REFLECTION' in p:
-        result[2] = 1
-    if 'CLASS_ENCRYPTION' in p:
-        result[3] = 1
-    return result
 
 
 if __name__ == '__main__':
     if options.dataset_type == 'tfidf':
-        create_tfidf("dataset_tfidf")
+        create_tfidf(options.dataset_dest)
     elif options.dataset_type == 'words_count':
         create_words_count("dataset_words_count")
