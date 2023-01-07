@@ -89,7 +89,7 @@ def predict_and_score(model, test_X, test_Y):
     preds = preds.reshape(-1)
 
 
-
+# TODO : revenir sur les try except qui n'ont aucun sens que gwen a écrit
 def main():
     t = Timer()
 

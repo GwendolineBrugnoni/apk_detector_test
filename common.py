@@ -6,6 +6,9 @@ from tqdm import tqdm
 import time
 import os
 
+def yo():
+    print('yo')
+
 def scores(preds, test_Y):
     if len(test_Y.shape) == 1:
         tp = 0
