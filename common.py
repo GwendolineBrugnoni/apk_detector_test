@@ -57,6 +57,7 @@ def load_dataset(input_file, target = None, training_set_part = 0.8):
 
     # df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows mis en commentaire pour pouvoir fusionner dans le bon ordre
     X = df.iloc[:,0:-3].values #on a modifié le -5 en -3
+    # TODO : ce truc est debile ....
     if target == None:
         Y = df.iloc[:,-3:-1].values
     else:

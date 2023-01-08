@@ -28,7 +28,7 @@ def preprocessing(dataset, destination):
     os.system(
         "cd preprocessing && python create_entropy_dataset.py -s ../" + dataset + "/ -d ../" + destination + "-entropy")
     os.system("cd preprocessing && python create_images.py -s ../" + dataset + "/ -d ../" + destination + "-img/")
-
+# TODO verifier pour les colonne de 0 dans entropy
 
 # TODO : si erreur mettre ligne de 0 et pas rien sinon ça décale tout
 def get_true_csv(destination):
@@ -56,8 +56,15 @@ def get_cnn_score(destination):
     os.system(cmd)
 
 
-def get_hybrid_score():
-    pass
+def get_hybrid_score(destination):
+    cmd = "cd hybrid && python hybrid.py --dataset-apk-dir  ../" + destination + "/ " \
+                                        "--dataset-txt-dir ../" + destination + "-opcode/ " \
+                                        "--dataset-img-dir ../" + destination + "-img/ " \
+                                        "--dataset-bow ../" + destination + "-tfidf.pv " \
+                                        "--dataset-androdet ../" + destination + "-parser.csv " \
+                                        "--dataset-entropy ../" + destination + "-entropy.csv " \
+                                                                                "-f true"
+    os.system(cmd)
 
 
 def main():
@@ -83,7 +90,8 @@ def main():
     # get_true_csv(options.dataset_dest)
     # get_androdet_score(options.dataset_dest)
     # get_bow_score(options.dataset_dest)
-    get_cnn_score(options.dataset_dest)
+    # get_cnn_score(options.dataset_dest)
+    get_hybrid_score(options.dataset_dest)
 
     # creation du fichier CSV qui fusionne tous
 

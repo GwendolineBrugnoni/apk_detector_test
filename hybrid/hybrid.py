@@ -1,3 +1,5 @@
+import optparse
+
 from PIL import Image # used for loading images
 import tensorflow as tf
 import numpy as np
@@ -16,8 +18,8 @@ from keras import optimizers
 from sklearn.metrics import f1_score, mean_squared_error, precision_score, recall_score
 import sys
 tmp = sys.path
-sys.path.append("..")
-from common import scores, load_dataset, load_light_dataset, Timer, get_target, load_dataset_properties
+sys.path.append("../")
+from common import scores, load_dataset, load_light_dataset,load_new_light_dataset, Timer, get_target, load_dataset_properties
 sys.path.append(tmp)
 
 
@@ -26,25 +28,26 @@ parser = optparse.OptionParser()
 parser.add_option('-d', '--dataset-apk-dir',
     action="store", dest="dataset_apk_dir",
     help="Directory of the original apk dataset", default="../dataset/")
-parser.add_option('-d', '--dataset-txt-dir',
+parser.add_option('-o', '--dataset-txt-dir',
     action="store", dest="dataset_txt_dir",
     help="Directory of the text (opcodes) dataset created with apk-parser", default="../dataset_txt/")
-parser.add_option('-d', '--dataset-img-dir',
+parser.add_option('-i', '--dataset-img-dir',
     action="store", dest="dataset_img_dir",
     help="Directory of the img dataset created with create_images", default="../dataset_img/")
-parser.add_option('-d', '--dataset-bow',
+parser.add_option('-b', '--dataset-bow',
     action="store", dest="dataset_bow",
     help="BOW dataset created with count_words", default="../dataset_tfidf.pv")
-parser.add_option('-d', '--dataset-androdet',
+parser.add_option('-p', '--dataset-androdet',
     action="store", dest="dataset_androdet",
     help="Androdet IR dataset created with apk-parser", default="../androdetPraGuard.csv")
-parser.add_option('-d', '--dataset-entropy',
+parser.add_option('-e', '--dataset-entropy',
     action="store", dest="dataset_entropy",
     help="Entropy dataset created with create_entropy_dataset", default="../dataset_entropy.csv")
 parser.add_option('-t', '--train',
     action="store", dest="train",
     help="true: force training and overwrite the model. false: the trained model will be used", default="false")
-
+parser.add_option('-f', '--fusion',
+                  help="true : create a array list to fusion with the others tests", default="false")
 options, args = parser.parse_args()
 
 
@@ -202,8 +205,68 @@ def process_trainset(train_X, test_X, data_type):
         X[x[0]] = np.array(x[1:],dtype=data_type)
     return X
 
+def process_new_trainset(train_X, data_type):
+    X = {}
+    for x in train_X:
+        X[x[0]] = np.array(x[1:],dtype=data_type)
+    return X
 
+def fusion():
+    print(options.dataset_bow, options.dataset_apk_dir, options.dataset_txt_dir, options.dataset_img_dir,
+          options.dataset_androdet
+          , options.dataset_entropy, options.fusion)
+    logging.info("PREPARE DATASET")
+    train_X1= load_new_light_dataset(images_root_dir, training_set_part=1, extension='jpeg')
+    train_X2, _, _, _ = load_dataset(options.dataset_bow,training_set_part=1)
+    train_X3, _, _, _ = load_dataset(options.dataset_entropy,training_set_part=1)
+    train_X4, _, _, _ = load_dataset_properties(options.dataset_androdet,training_set_part=1)
+    nlp_X = process_new_trainset(train_X2, 'int')
+    entropy_X = process_new_trainset(train_X3, 'float')
+    androdet_X = process_new_trainset(train_X4, 'float')
+    logging.info("CREATE MODEL")
+    model = create_model(
+        activation=network['activation'],
+        optimizer=network['optimizer'],
+        learning_rate=network['learning_rate'],
+        output_size=4,
+        merged_layers=network['merged_layers']
+    )
+
+    model = models.load_model(model_name)
+    preds = np.empty((0, 4))
+
+    with tqdm(total=len(train_X1)) as pbar:
+        for i, img_file in enumerate(train_X1):
+            # try:
+            image = Image.open(img_file, 'r')
+            image_X = np.asarray(image).reshape(1, IMG_SIZE, IMG_SIZE, levels)
+            androdet_X = androdet_X[get_apk_file(img_file)].reshape(1, ANDRODET_SIZE)
+            entropy_X = entropy_X[get_original_file(img_file)].reshape(1, 1)
+            print(nlp_X)
+            nlp_X = nlp_X[get_original_old_file(img_file) + '.txt'].reshape(1, NLP_SIZE)
+            print("ouais")
+            Y = model.predict([androdet_X, image_X, nlp_X, entropy_X], verbose=0)
+            print("non")
+            preds = np.append(preds, Y, axis=0)
+            # except:
+            #     logging.debug("error: " + img_file)
+            pbar.update(1)
+
+    print(preds)
+    preds[preds >= 0.5] = 1
+    preds[preds < 0.5] = 0
+
+
+
+    return 0
 def main():
+    try:
+        if options.fusion == 'true':
+            data = fusion()
+            return data
+    except:
+        raise Exception('Echec dans la génération du csv')
+
     t = Timer()
     t.reset_cpu_time()
     logging.info("PREPARE DATASET")
