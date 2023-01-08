@@ -1,6 +1,6 @@
-from PIL import Image # used for loading images
+from PIL import Image  # used for loading images
 import numpy as np
-import os # used for navigating to image path
+import os  # used for navigating to image path
 import logging
 import glob
 import re
@@ -15,23 +15,27 @@ from keras import optimizers
 from sklearn.metrics import f1_score, mean_squared_error, precision_score, recall_score
 import optparse
 import sys
-tmp = sys.path
-sys.path.append("..")
-from common import scores, load_light_dataset, Timer, get_target
-sys.path.append(tmp)
+import pandas as pd
 
+tmp = sys.path
+sys.path.append("../")
+from common import scores, load_light_dataset, load_new_light_dataset, Timer, get_target
+
+sys.path.append(tmp)
 
 parser = optparse.OptionParser()
 
 parser.add_option('-d', '--dataset-dir',
-    action="store", dest="dataset_dir",
-    help="Directory of the img dataset created with create_images", default="../dataset_img/")
+                  action="store", dest="dataset_dir",
+                  help="Directory of the img dataset created with create_images", default="../dataset_img/")
 parser.add_option('-t', '--train',
-    action="store", dest="train",
-    help="true: force training and overwrite the model. false: the trained model will be used", default="false")
+                  action="store", dest="train",
+                  help="true: force training and overwrite the model. false: the trained model will be used",
+                  default="false")
+parser.add_option('-f', '--fusion',
+                  help="true : create a array list to fusion with the others tests", default="false")
 
 options, args = parser.parse_args()
-
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -45,14 +49,15 @@ levels = 3  # 1=bw 3=rgb
 model_name = 'model_trained.k'
 
 target = None
-network = {'layers_and_filters': [1, 4], 'kernel_size': [3, 8], 'activation': 'relu', 'learning_rate': 0.001, 'dropout_rate': 0.0, 'optimizer': 'adam', 'epochs': 4}
+network = {'layers_and_filters': [1, 4], 'kernel_size': [3, 8], 'activation': 'relu', 'learning_rate': 0.001,
+           'dropout_rate': 0.0, 'optimizer': 'adam', 'epochs': 4}
 
 
 def load_dataset(root_dir):
     try:
-        return pickle.load( open( images_root_dir + "img_dataset.p", "rb" ) )
+        return pickle.load(open(images_root_dir + "img_dataset.p", "rb"))
     except:
-        data = np.empty((0,IMG_SIZE**2 * levels + 4), dtype=np.uint8)
+        data = np.empty((0, IMG_SIZE ** 2 * levels + 4), dtype=np.uint8)
 
         total = 0
         for _ in glob.iglob(root_dir + '**/*.jpeg', recursive=True):
@@ -61,22 +66,23 @@ def load_dataset(root_dir):
         with tqdm(total=total) as pbar:
             for img_file in glob.iglob(images_root_dir + '**/*.jpeg', recursive=True):
                 image = Image.open(img_file, 'r')
-                X = np.asarray(image).reshape(-1)[int((2640**2*levels-IMG_SIZE**2*levels)/2):int((2640**2*levels-IMG_SIZE**2*levels)/2+IMG_SIZE**2*levels)]  # immagine ridotta per performace
+                X = np.asarray(image).reshape(-1)[int((2640 ** 2 * levels - IMG_SIZE ** 2 * levels) / 2):int((
+                                                                                                                         2640 ** 2 * levels - IMG_SIZE ** 2 * levels) / 2 + IMG_SIZE ** 2 * levels)]  # immagine ridotta per performace
                 Y = get_target(img_file)
-                data = np.append(data, np.array([np.append(X,Y)]), axis=0)
+                data = np.append(data, np.array([np.append(X, Y)]), axis=0)
                 pbar.update(1)
 
-        pickle.dump( data, open( images_root_dir + "img_dataset.p", "wb" ) )
+        pickle.dump(data, open(images_root_dir + "img_dataset.p", "wb"))
         return data
 
 
-def prepare_dataset(data, target=3, training_set_part = 0.8):
+def prepare_dataset(data, target=3, training_set_part=0.8):
     '''
     target [0=TRIVIAL,1=STRING,2=REFLECTION,3=CLASS]
     '''
     np.random.shuffle(data)
-    X = data[:,:IMG_SIZE**2 * levels]
-    Y = data[:,IMG_SIZE**2 * levels + target : IMG_SIZE**2 * levels + target + 1]
+    X = data[:, :IMG_SIZE ** 2 * levels]
+    Y = data[:, IMG_SIZE ** 2 * levels + target: IMG_SIZE ** 2 * levels + target + 1]
     X = X.reshape((-1, IMG_SIZE, IMG_SIZE, levels))
 
     total_items = X.shape[0]
@@ -92,14 +98,16 @@ def prepare_dataset(data, target=3, training_set_part = 0.8):
     return train_X, train_Y, test_X, test_Y
 
 
-def create_model(layers_and_filters, kernels, activation, input_shape, dropout_rate, optimizer, learning_rate, output_size=1):
+def create_model(layers_and_filters, kernels, activation, input_shape, dropout_rate, optimizer, learning_rate,
+                 output_size=1):
     model = models.Sequential()
     i = 0
     for filters in layers_and_filters:
-        model.add(layers.Conv2D(filters, kernel_size=kernels[i], strides=kernels[i], activation=activation, input_shape=input_shape))
+        model.add(layers.Conv2D(filters, kernel_size=kernels[i], strides=kernels[i], activation=activation,
+                                input_shape=input_shape))
         i += 1
         if i < len(layers_and_filters):
-            model.add(layers.MaxPooling2D(pool_size=(2,2)))
+            model.add(layers.MaxPooling2D(pool_size=(2, 2)))
             model.add(layers.BatchNormalization())
 
     if dropout_rate != 0:
@@ -124,10 +132,10 @@ def create_model(layers_and_filters, kernels, activation, input_shape, dropout_r
     model.compile(
         loss='binary_crossentropy',
         optimizer=opt,
-        metrics = ["mean_squared_error"]
+        metrics=["mean_squared_error"]
     )
 
-    #model.summary()
+    # model.summary()
     return model
 
 
@@ -147,7 +155,7 @@ def fit_one_at_time(model, files, targets, epochs=1):
 
 
 def score_one_at_time(model, files, test_Y):
-    preds = np.empty((0,test_Y.shape[1]))
+    preds = np.empty((0, test_Y.shape[1]))
 
     with tqdm(total=len(files)) as pbar:
         for i, img_file in enumerate(files):
@@ -161,8 +169,8 @@ def score_one_at_time(model, files, test_Y):
             pbar.update(1)
 
     print(preds, test_Y)
-    preds[preds>=0.5] = 1
-    preds[preds<0.5] = 0
+    preds[preds >= 0.5] = 1
+    preds[preds < 0.5] = 0
     print("Other F1 score: ", f1_score(test_Y, preds, average='micro'))
 
     precision, recall, f1 = scores(preds, test_Y)
@@ -190,13 +198,13 @@ def main_in_memory():
         x=train_X,
         y=train_Y,
         epochs=network['epochs']
-        )
+    )
 
     preds = model.predict(test_X)
 
     print(preds, test_Y)
-    preds[preds>=0.5] = 1
-    preds[preds<0.5] = 0
+    preds[preds >= 0.5] = 1
+    preds[preds < 0.5] = 0
     print("Other F1 score: ", f1_score(test_Y, preds, average='micro'))
     precision, recall, f1 = scores(preds, test_Y)
     print("precision: ", precision)
@@ -204,11 +212,60 @@ def main_in_memory():
     print("f1score: ", f1)
 
 
-def main():
+def fusion():
     t = Timer()
     t.reset_cpu_time()
     logging.info("PREPARE DATASET")
-    train_X, train_Y, test_X, test_Y = load_light_dataset(images_root_dir, target=target, training_set_part=0.8, extension='jpeg')
+    train_X= load_new_light_dataset(images_root_dir, target=target, training_set_part=1,
+                                                          extension='jpeg')
+    logging.info("CREATE MODEL")
+    model = create_model(
+        network['layers_and_filters'],
+        network['kernel_size'],
+        network['activation'],
+        (IMG_SIZE, IMG_SIZE, levels),
+        network['dropout_rate'],
+        network['optimizer'],
+        network['learning_rate'],
+        output_size=4
+    )
+
+    t.get_cpu_time("TRAIN")
+    logging.info("TEST on TRAIN")
+    # def score_one_at_time(model, files, test_Y):
+    preds = np.empty((0, 4))
+
+    with tqdm(total=len(train_X)) as pbar:
+        for i, img_file in enumerate(train_X):
+            try:
+                image = Image.open(img_file, 'r')
+                X = np.asarray(image).reshape((-1, IMG_SIZE, IMG_SIZE, levels))
+                Y = model.predict(X, verbose=0)
+                preds = np.append(preds, Y, axis=0)
+            except:
+                print('Error scoring: ' + img_file)
+            pbar.update(1)
+
+    preds[preds >= 0.5] = 1
+    preds[preds < 0.5] = 0
+    score = pd.DataFrame(data=preds, columns=['CnnT', 'CnnSE', 'CnnR', 'CnnCE'])
+    score.to_csv("../Cnn.csv", index=False)
+    return preds
+
+
+def main():
+    try:
+        if options.fusion == 'true':
+            data = fusion()
+            return data
+
+    except:
+        raise Exception('Echec dans la génération du csv')
+    t = Timer()
+    t.reset_cpu_time()
+    logging.info("PREPARE DATASET")
+    train_X, train_Y, test_X, test_Y = load_light_dataset(images_root_dir, target=target, training_set_part=0.8,
+                                                          extension='jpeg')
     logging.info("CREATE MODEL")
     model = create_model(
         network['layers_and_filters'],

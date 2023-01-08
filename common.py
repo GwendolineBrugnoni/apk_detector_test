@@ -74,7 +74,9 @@ def load_dataset(input_file, target = None, training_set_part = 0.8):
 
     return train_X, train_Y, test_X, test_Y
 
-
+'''
+A noter que le code comme modifier actuellement ne pourra plus générer de modele
+'''
 # target: [0=TRIVIAL,1=STRING,2=REFLECTION,3=CLASS]
 def load_dataset_properties(input_file, target = 3, training_set_part = 0.8):
     df = pd.read_csv(input_file)
@@ -94,14 +96,32 @@ def load_dataset_properties(input_file, target = 3, training_set_part = 0.8):
 
     return train_X, train_Y, test_X, test_Y
 
+def load_new_light_dataset(data_folder_name, target=None, training_set_part = 0.8, extension="txt"):
+    '''
+       get the dataset as [filename] [target]
+       '''
+    data = np.empty((0, 1))
+    total = 0
+    for _ in glob.iglob(data_folder_name + '**/*.' + extension, recursive=True):
+        total += 1
 
+    with tqdm(total=total) as pbar:
+        for file in glob.iglob(data_folder_name + '**/*.' + extension, recursive=True):
+            data = np.append(data, np.array([file]))
+            pbar.update(1)
+
+    pickle.dump(data, open(os.path.join(data_folder_name, "filenames.p"), "wb"))
+    X = data.reshape(-1)
+
+    return X
 
 def load_light_dataset(data_folder_name, target=None, training_set_part = 0.8, extension="txt"):
     '''
     get the dataset as [filename] [target]
     '''
     try:
-        data = pickle.load(open(os.path.join(data_folder_name, "filenames.p"), "rb" ) )
+        # data = pickle.load(open(os.path.join(data_folder_name, "filenames.p"), "rb" ) )
+        raise Exception('test')
     except:
         data = np.empty((0,5))
 
@@ -112,7 +132,9 @@ def load_light_dataset(data_folder_name, target=None, training_set_part = 0.8, e
         with tqdm(total=total) as pbar:
             for file in glob.iglob(data_folder_name + '**/*.' + extension, recursive=True):
                 X = np.array([file])
+                print(X)
                 Y = get_target(file)
+                print(Y)
                 data = np.append(data, np.array([np.append(X,Y)]), axis=0)
                 pbar.update(1)
 

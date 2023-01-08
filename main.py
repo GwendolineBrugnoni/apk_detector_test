@@ -51,8 +51,9 @@ def get_bow_score(destination):
     os.system(cmd)
 
 
-def get_cnn_score():
-    pass
+def get_cnn_score(destination):
+    cmd = "cd cnn && python cnn.py -d ../" + destination + "-img/ -f true"
+    os.system(cmd)
 
 
 def get_hybrid_score():
@@ -79,9 +80,10 @@ def main():
     if options.preprocessing == 'true':
         preprocessing(options.dataset_text_dir, options.dataset_dest)
 
-    get_true_csv(options.dataset_dest)
-    get_androdet_score(options.dataset_dest)
-    get_bow_score(options.dataset_dest)
+    # get_true_csv(options.dataset_dest)
+    # get_androdet_score(options.dataset_dest)
+    # get_bow_score(options.dataset_dest)
+    get_cnn_score(options.dataset_dest)
 
     # creation du fichier CSV qui fusionne tous
 
