@@ -13,7 +13,7 @@ import optparse
 import sys
 
 tmp = sys.path
-#sys.path.append("..")
+sys.path.append("../")
 
 from common import scores, Timer, load_dataset
 sys.path.append(tmp)
@@ -41,7 +41,7 @@ network = {'n_layers': 3, 'n_neurons': 50, 'activation': 'sigmoid', 'learning_ra
 
 target = None
 dataset = options.dataset_dir
-model_name = 'bow/model_trained.k'
+model_name = 'model_trained.k'
 
 
 def create_model(input_size, output_size, n_layers, n_neurons, activation_function, learning_rate, dropout_rate, optimizer):
@@ -105,21 +105,19 @@ def main():
 
     try:
         if options.fusion == 'true':
-            raise Exception('Create data to fusion')
+            model = models.load_model(model_name)
+            score = np.empty((0, 1))
+            X, Y, Z, A = load_dataset(dataset, target=target,training_set_part=1)
+            X = X[:, 1:]
+            data = model.predict(X)
+            data[data >= 0.5] = 1
+            data[data < 0.5] = 0
+
+            score = pd.DataFrame(data=data, columns=['BowT', 'BowSE', 'BowR', 'BowCE'])
+            score.to_csv("../bow.csv", index=False)
+            return data
     except:
-        model = models.load_model(model_name)
-        score = np.empty((0, 1))
-        X, Y,Z,A = load_dataset(dataset,target=target)
-        X = X[:, 1:]
-
-        data = model.predict(X)
-        data[data >= 0.5] = 1
-        data[data < 0.5] = 0
-
-        score = pd.DataFrame(data=data, columns=['BowT','BowSE','BowR','BowCE'])
-
-        score.to_csv("bow.csv", index=False)
-        return data
+        raise Exception('Echec dans la génération du csv')
     try:
         if options.train == 'true':
             raise Exception('Force train model')

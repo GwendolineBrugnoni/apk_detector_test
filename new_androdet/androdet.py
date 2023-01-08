@@ -11,7 +11,7 @@ from pprint import pprint
 import optparse
 
 tmp = sys.path
-# sys.path.append("..")
+sys.path.append("../")
 
 from common import scores, load_dataset_properties, Timer
 sys.path.append(tmp)
@@ -39,7 +39,7 @@ network = {'n_layers': 3, 'n_neurons': 50, 'activation': 'tanh', 'learning_rate'
 
 
 dataset = options.dataset_dir
-model_name = 'new_androdet/model_trained.k'
+model_name = 'model_trained.k'
 
 
 def create_model(input_size, output_size, n_layers, n_neurons, activation_function, learning_rate, dropout_rate, optimizer):
@@ -89,14 +89,13 @@ def predict_and_score(model, test_X, test_Y):
     preds = preds.reshape(-1)
 
 
-# TODO : revenir sur les try except qui n'ont aucun sens que gwen a écrit
 def main():
     t = Timer()
 
     logging.info("PREPARE DATASET")
 
     # Create train and test set
-    train_X, train_Y, test_X, test_Y = load_dataset_properties(dataset, target=0, training_set_part=0.8)
+    train_X, train_Y, test_X, test_Y = load_dataset_properties(dataset, target=0)
 
     train_names = train_X[:,0]
     train_X = train_X[:,1:]
@@ -109,20 +108,20 @@ def main():
     output_size = train_Y.shape[1]
     try:
         if options.fusion == 'true':
-            raise Exception('Create data to fusion')
+            model = models.load_model(model_name)
+            score = np.empty((0, 1))
+            X, Y, Z, A = load_dataset_properties(dataset, target=0,training_set_part=1)
+            X = X[:, 1:]
+            print(X[1])
+            data = model.predict(X)
+            data[data >= 0.5] = 1
+            data[data < 0.5] = 0
+            score = pd.DataFrame(data=data, columns=['Androdet'])
+            score.to_csv("../androdet.csv", index=False)
+            return data
     except:
-        model = models.load_model(model_name)
-        score = np.empty((0, 1))
-        X, Y,Z,A = load_dataset_properties(dataset, target=0, training_set_part=0.8)
-        X = X[:, 1:]
+        raise Exception('Echec dans la génération du csv')
 
-        data = model.predict(X)
-        data[data >= 0.5] = 1
-        data[data < 0.5] = 0
-        score = pd.DataFrame(data=data, columns=['Androdet'])
-
-        score.to_csv("androdet.csv", index=False)
-        return data
     try:
         if options.train == 'true':
             raise Exception('Force train model')

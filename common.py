@@ -54,12 +54,13 @@ def scores(preds, test_Y):
 # target: [0=TRIVIAL,1=STRING,2=REFLECTION,3=CLASS, None=ALL]
 def load_dataset(input_file, target = None, training_set_part = 0.8):
     df = pd.read_csv(input_file, sep=" ", header=None)
-    df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows
-    X = df.iloc[:,0:-5].values
+
+    # df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows mis en commentaire pour pouvoir fusionner dans le bon ordre
+    X = df.iloc[:,0:-3].values #on a modifié le -5 en -3
     if target == None:
-        Y = df.iloc[:,-5:-1].values
+        Y = df.iloc[:,-3:-1].values
     else:
-        Y = df.iloc[:,target-5:target-4].values
+        Y = df.iloc[:,target-5:target-4].values #pas utiliser je crois
 
     total_items = X.shape[0]
     input_size = X.shape[1]
@@ -77,9 +78,9 @@ def load_dataset(input_file, target = None, training_set_part = 0.8):
 # target: [0=TRIVIAL,1=STRING,2=REFLECTION,3=CLASS]
 def load_dataset_properties(input_file, target = 3, training_set_part = 0.8):
     df = pd.read_csv(input_file)
-    df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows
-    X = df.iloc[:,1:-4].values
-    Y = df.iloc[:,target-4:target-3].values
+    # df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows mis en commentaire pour pouvoir faire la fusion
+    X = df.iloc[:,1:-2].values
+    Y = df.iloc[:,target-2:target-1].values # on enleve le nombre de colonnes de resultat ici deux avec malwares et obfusqués
 
     total_items = X.shape[0]
     input_size = X.shape[1]
@@ -92,6 +93,7 @@ def load_dataset_properties(input_file, target = 3, training_set_part = 0.8):
     test_Y = Y[training_set_size:]
 
     return train_X, train_Y, test_X, test_Y
+
 
 
 def load_light_dataset(data_folder_name, target=None, training_set_part = 0.8, extension="txt"):

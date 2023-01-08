@@ -17,18 +17,22 @@ from common import get_target, get_new_target
 
 
 # reading the csv file
-#TODO : Regler ces problème de shell en modifiant les autres fichier pour pouvoir les appeller autrement (là ça donne
-# envie de pleurer !) et en profiter pour regler le pb d'import de common.
-def preprocessing(dataset,destination):
-    os.system("cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../"+destination+"-parser.csv -t androdet_IR")
+# TODO : Regler ces problème de shell en modifiant les autres fichier pour pouvoir les appeller autrement (là ça donne
+#  envie de pleurer !) et en profiter pour regler le pb d'import de common.
+def preprocessing(dataset, destination):
+    os.system(
+        "cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-parser.csv -t androdet_IR")
     os.system("cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../opcode/")
-    os.system("cd preprocessing && python count_words.py -s ../"+destination+"-opcode/ -d "+destination+"-tfidf")
-    os.system("cd preprocessing && python create_entropy_dataset.py -s ../" + dataset + "/ -d ../"+destination+"-entropy")
-    os.system("cd preprocessing && python create_images.py -s ../" + dataset + "/ -d ../"+destination+"-img/")
+    os.system(
+        "cd preprocessing && python count_words.py -s ../" + destination + "-opcode/ -d " + destination + "-tfidf")
+    os.system(
+        "cd preprocessing && python create_entropy_dataset.py -s ../" + dataset + "/ -d ../" + destination + "-entropy")
+    os.system("cd preprocessing && python create_images.py -s ../" + dataset + "/ -d ../" + destination + "-img/")
+
 
 # TODO : si erreur mettre ligne de 0 et pas rien sinon ça décale tout
-def get_true_csv():
-    df = pd.read_csv("apk-parser.csv")
+def get_true_csv(destination):
+    df = pd.read_csv(destination + "-parser.csv")
     data = np.empty((0, 3))
     for index, row in df.iterrows():  # index c'est le num de la ligne , row c'est les info de la ligne
         a = get_new_target(row[1])
@@ -36,16 +40,14 @@ def get_true_csv():
     score = pd.DataFrame(data=data, columns=['Filename'] + ['Malwaes'] + ['True_score'])
     score.to_csv("score.csv", index=False)
 
-
-def get_androdet_score():
-    sys.path = "~/Documents/Recherche/ProjetGit/new_androdet"
-    cmd = "python new_androdet/androdet.py -f true"
+#TODO : c'est quoi cette abomination ?
+def get_androdet_score(destination):
+    cmd = "cd new_androdet && python androdet.py -d ../" + destination + "-parser.csv -f true"
     os.system(cmd)
 
 
-def get_bow_score():
-    sys.path = "~/Documents/Recherche/ProjetGit/bow"
-    cmd = "python bow/bow.py  -f true"
+def get_bow_score(destination):
+    cmd = "cd bow && python bow.py -d ../" + destination + "-tfidf.pv -f true"
     os.system(cmd)
 
 
@@ -75,11 +77,11 @@ def main():
     options, args = parser.parse_args()
 
     if options.preprocessing == 'true':
-        preprocessing(options.dataset_text_dir,options.dataset_dest)
+        preprocessing(options.dataset_text_dir, options.dataset_dest)
 
-    # get_true_csv()
-    # get_androdet_score()
-    # get_bow_score()
+    get_true_csv(options.dataset_dest)
+    get_androdet_score(options.dataset_dest)
+    get_bow_score(options.dataset_dest)
 
     # creation du fichier CSV qui fusionne tous
 
