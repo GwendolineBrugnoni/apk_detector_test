@@ -20,14 +20,14 @@ from common import get_target, get_new_target
 # TODO : Regler ces problème de shell en modifiant les autres fichier pour pouvoir les appeller autrement (là ça donne
 #  envie de pleurer !) et en profiter pour regler le pb d'import de common.
 def preprocessing(dataset, destination):
+    # os.system(
+    #     "cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-parser.csv -t androdet_IR")
+    # os.system("cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-opcode/")
     os.system(
-        "cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-parser.csv -t androdet_IR")
-    os.system("cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../opcode/")
-    os.system(
-        "cd preprocessing && python count_words.py -s ../" + destination + "-opcode/ -d " + destination + "-tfidf")
-    os.system(
-        "cd preprocessing && python create_entropy_dataset.py -s ../" + dataset + "/ -d ../" + destination + "-entropy")
-    os.system("cd preprocessing && python create_images.py -s ../" + dataset + "/ -d ../" + destination + "-img/")
+        "cd preprocessing && python count_words.py -s ../" + destination + "-opcode/ -d ../" + destination + "-tfidf")
+    # os.system(
+    #     "cd preprocessing && python create_entropy_dataset.py -s ../" + dataset + "/ -d ../" + destination + "-entropy")
+    # os.system("cd preprocessing && python create_images.py -s ../" + dataset + "/ -d ../" + destination + "-img/")
 # TODO verifier pour les colonne de 0 dans entropy
 
 # TODO : si erreur mettre ligne de 0 et pas rien sinon ça décale tout
