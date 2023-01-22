@@ -89,19 +89,19 @@ def main():
 
     # get_true_csv(options.dataset_dest)
     # get_androdet_score(options.dataset_dest)
-    # get_bow_score(options.dataset_dest)
+    get_bow_score(options.dataset_dest)
     # get_cnn_score(options.dataset_dest)
     # get_hybrid_score(options.dataset_dest)
 
     # creation du fichier CSV qui fusionne tous
 
-    df = pd.read_csv("score.csv")
-    androdet = pd.read_csv("androdet.csv")
-    bow = pd.read_csv("bow.csv")
-    cnn = pd.read_csv("Cnn.csv")
-    hybrid = pd.read_csv("Hybrid.csv")
-    score = pd.concat([pd.concat([pd.concat([pd.concat([df, androdet],axis=1),bow],axis=1),cnn],axis=1),hybrid],axis=1)
-    score.to_csv("final.csv",index=False)
+    # df = pd.read_csv("score.csv")
+    # androdet = pd.read_csv("androdet.csv")
+    # bow = pd.read_csv("bow.csv")
+    # cnn = pd.read_csv("Cnn.csv")
+    # hybrid = pd.read_csv("Hybrid.csv")
+    # score = pd.concat([pd.concat([pd.concat([pd.concat([df, androdet],axis=1),bow],axis=1),cnn],axis=1),hybrid],axis=1)
+    # score.to_csv("final.csv",index=False)
 
     # test de score csv pour avoir la mesure F1
 

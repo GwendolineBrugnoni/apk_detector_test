@@ -50,7 +50,26 @@ def scores(preds, test_Y):
         f1_scores = list(map(lambda x: 2*x[0]*x[1]/(x[0]+x[1]) if x[0]+x[1] != 0 else 0, zip(precisions, recalls)))
         return precisions, recalls, f1_scores
 
+def load_dataset_original(input_file, target = None, training_set_part = 0.8):
+    df = pd.read_csv(input_file, sep=" ", header=None)
+    df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows
+    X = df.iloc[:,0:-5].values
+    if target == None:
+        Y = df.iloc[:,-5:-1].values
+    else:
+        Y = df.iloc[:,target-5:target-4].values
 
+    total_items = X.shape[0]
+    input_size = X.shape[1]
+    output_size = Y.shape[1]
+    training_set_size = int(round(total_items * training_set_part))
+
+    train_X = X[:training_set_size]
+    train_Y = Y[:training_set_size]
+    test_X = X[training_set_size:]
+    test_Y = Y[training_set_size:]
+
+    return train_X, train_Y, test_X,test_Y
 # target: [0=TRIVIAL,1=STRING,2=REFLECTION,3=CLASS, None=ALL]
 def load_dataset(input_file, target = None, training_set_part = 0.8):
     df = pd.read_csv(input_file, sep=" ", header=None)
@@ -75,6 +94,26 @@ def load_dataset(input_file, target = None, training_set_part = 0.8):
 
     return train_X, train_Y, test_X, test_Y
 
+
+
+# target: [0=TRIVIAL,1=STRING,2=REFLECTION,3=CLASS]
+def load_dataset_properties_original(input_file, target = 3, training_set_part = 0.8):
+    df = pd.read_csv(input_file)
+    df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows
+    X = df.iloc[:,1:-4].values
+    Y = df.iloc[:,target-4:target-3].values
+
+    total_items = X.shape[0]
+    input_size = X.shape[1]
+    output_size = Y.shape[1]
+    training_set_size = int(round(total_items * training_set_part))
+
+    train_X = X[:training_set_size]
+    train_Y = Y[:training_set_size]
+    test_X = X[training_set_size:]
+    test_Y = Y[training_set_size:]
+
+    return train_X, train_Y, test_X, test_Y
 '''
 A noter que le code comme modifier actuellement ne pourra plus générer de modele
 '''

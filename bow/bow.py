@@ -15,7 +15,7 @@ import sys
 tmp = sys.path
 sys.path.append("../")
 
-from common import scores, Timer, load_dataset
+from common import scores, Timer, load_dataset,load_dataset_original
 sys.path.append(tmp)
 
 
@@ -23,7 +23,7 @@ parser = optparse.OptionParser()
 
 parser.add_option('-d', '--dataset-dir',
     action="store", dest="dataset_dir",
-    help="Directory of the text dataset created with count_words", default="dataset_tfidf.pv")
+    help="Directory of the text dataset created with count_words", default="../dataset_tfidf.pv")
 parser.add_option('-t', '--train',
     action="store", dest="train",
     help="true: force training and overwrite the model. false: the trained model will be used", default="false")
@@ -92,7 +92,7 @@ def main():
     t.reset_cpu_time()
 
     # Create traing and test set
-    train_X, train_Y, test_X, test_Y = load_dataset(dataset, target=target)
+    train_X, train_Y, test_X, test_Y = load_dataset_original(dataset, target=target)
 
     #dataset beging with the file name
     train_X = train_X[:,1:]
