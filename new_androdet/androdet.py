@@ -21,7 +21,7 @@ parser = optparse.OptionParser()
 
 parser.add_option('-d', '--dataset-dir',
     action="store", dest="dataset_dir",
-    help="Directory of the text dataset created with count_words", default="androdetPraGuard.csv")
+    help="Directory of the text dataset created with count_words", default="../androdetPraGuard.csv")
 parser.add_option('-t', '--train',
     action="store", dest="train",
     help="true: force training and overwrite the model. false: the trained model will be used", default="false")

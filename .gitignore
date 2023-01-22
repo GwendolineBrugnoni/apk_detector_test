@@ -6,3 +6,6 @@ apk
 **.jpeg
 apk-img
 *opcode
+apk-clean
+apk-clean-img
+apk-clean-opcode

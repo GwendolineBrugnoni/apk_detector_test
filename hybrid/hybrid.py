@@ -209,15 +209,9 @@ def process_new_trainset(train_X, data_type):
     X = {}
     for x in train_X:
         X[x[0]] = np.array(x[1:],dtype=data_type)
-    print("-------------------------------------------------------------------")
-    # print(X)
     return X
 
 def fusion():
-    # print(np.__version__)
-    # print(options.dataset_bow, options.dataset_apk_dir, options.dataset_txt_dir, options.dataset_img_dir,
-    #       options.dataset_androdet
-    #       , options.dataset_entropy, options.fusion)
     logging.info("PREPARE DATASET")
     train_X1= load_new_light_dataset(images_root_dir, target=0,training_set_part=1, extension='jpeg')
     train_X2, _, _, _ = load_dataset(options.dataset_bow,target=0,training_set_part=1)
@@ -225,10 +219,7 @@ def fusion():
     train_X4, _, _, _ = load_dataset_properties(options.dataset_androdet,target=0,training_set_part=1)
     nlp_X = process_new_trainset(train_X2, 'int')
     entropy_X = process_new_trainset(train_X3, 'float')
-    print(train_X4[0])
-    print(train_X4[1])
     androdet_X = process_new_trainset(train_X4, 'float')
-    print(androdet_X)
     logging.info("CREATE MODEL")
     model = create_model(
         activation=network['activation'],
@@ -241,34 +232,9 @@ def fusion():
     model = models.load_model(model_name)
     preds = np.empty((0, 4))
 
-    # preds = np.empty((0, test_Y.shape[1]))
-    # right_test_Y = np.empty((0, test_Y.shape[1]))
-    # tot = 0
-    #
-    # with tqdm(total=len(files)) as pbar:
-    #     for i, img_file in enumerate(files):
-    #         try:
-    #             image = Image.open(img_file, 'r')
-    #             image_X = np.asarray(image).reshape(1, IMG_SIZE, IMG_SIZE, levels)
-    #             androdet_X = androdet_x[get_apk_file(img_file)].reshape(1, ANDRODET_SIZE)
-    #             nlp_X = nlp_x[get_original_old_file(img_file) + '.txt'].reshape(1, NLP_SIZE)
-    #             entropy_X = entropy_x[get_original_file(img_file)].reshape(1, 1)
-    #             Y = model.predict([androdet_X, image_X, nlp_X, entropy_X], verbose=0)
-    #             preds = np.append(preds, Y, axis=0)
-    #             right_test_Y = np.append(right_test_Y, test_Y[i:i + 1], axis=0)
-    #         except:
-    #             logging.debug("error: " + img_file)
-    #         pbar.update(1)
     with tqdm(total=len(train_X1)) as pbar:
 
-        print(androdet_X["../apk/benines/non_obfusqués/0ebb5c986caa77e370f99af9f9c580ed21bbc2ec5f311f8ab4f44be947559b76.apk"])
-        print("*************")
         for i, img_file in enumerate(train_X1):
-            print(androdet_X[get_apk_file(img_file)])
-        for i, img_file in enumerate(train_X1):
-            # try:
-            print(androdet_X[get_apk_file(img_file)])
-            print(get_apk_file(img_file))
             image = Image.open(img_file, 'r')
             image_X = np.asarray(image).reshape(1, IMG_SIZE, IMG_SIZE, levels)
 
@@ -277,11 +243,8 @@ def fusion():
             nlp_x = nlp_X[get_original_old_file(img_file) + '.txt'].reshape(1, NLP_SIZE)
             Y = model.predict([androdet_x, image_X, nlp_x, entropy_x], verbose=0)
             preds = np.append(preds, Y, axis=0)
-            # except:
-            #     logging.debug("error: " + img_file)
             pbar.update(1)
 
-    print(preds)
     preds[preds >= 0.5] = 1
     preds[preds < 0.5] = 0
     score = pd.DataFrame(data=preds, columns=['HybridT', 'HybridSE', 'HybridR', 'HybridCE'])

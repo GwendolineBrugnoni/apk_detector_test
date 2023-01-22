@@ -20,14 +20,14 @@ from common import get_target, get_new_target
 # TODO : Regler ces problème de shell en modifiant les autres fichier pour pouvoir les appeller autrement (là ça donne
 #  envie de pleurer !) et en profiter pour regler le pb d'import de common.
 def preprocessing(dataset, destination):
-    # os.system(
-    #     "cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-parser.csv -t androdet_IR")
-    # os.system("cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-opcode/")
+    os.system(
+        "cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-parser.csv -t androdet_IR")
+    os.system("cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-opcode/")
     os.system(
         "cd preprocessing && python count_words.py -s ../" + destination + "-opcode/ -d ../" + destination + "-tfidf")
-    # os.system(
-    #     "cd preprocessing && python create_entropy_dataset.py -s ../" + dataset + "/ -d ../" + destination + "-entropy")
-    # os.system("cd preprocessing && python create_images.py -s ../" + dataset + "/ -d ../" + destination + "-img/")
+    os.system(
+        "cd preprocessing && python create_entropy_dataset.py -s ../" + dataset + "/ -d ../" + destination + "-entropy")
+    os.system("cd preprocessing && python create_images.py -s ../" + dataset + "/ -d ../" + destination + "-img/")
 # TODO verifier pour les colonne de 0 dans entropy
 
 # TODO : si erreur mettre ligne de 0 et pas rien sinon ça décale tout
@@ -91,15 +91,17 @@ def main():
     # get_androdet_score(options.dataset_dest)
     # get_bow_score(options.dataset_dest)
     # get_cnn_score(options.dataset_dest)
-    get_hybrid_score(options.dataset_dest)
+    # get_hybrid_score(options.dataset_dest)
 
     # creation du fichier CSV qui fusionne tous
 
-    # df = pd.read_csv("score.csv")
-    # androdet = pd.read_csv("androdet.csv")
-    # bow = pd.read_csv("bow.csv")
-    # score = pd.concat([pd.concat([df, androdet],axis=1),bow],axis=1)
-    # score.to_csv("final.csv",index=False)
+    df = pd.read_csv("score.csv")
+    androdet = pd.read_csv("androdet.csv")
+    bow = pd.read_csv("bow.csv")
+    cnn = pd.read_csv("Cnn.csv")
+    hybrid = pd.read_csv("Hybrid.csv")
+    score = pd.concat([pd.concat([pd.concat([pd.concat([df, androdet],axis=1),bow],axis=1),cnn],axis=1),hybrid],axis=1)
+    score.to_csv("final.csv",index=False)
 
     # test de score csv pour avoir la mesure F1
 

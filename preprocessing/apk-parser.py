@@ -74,7 +74,7 @@ def get_properties_IR(path):
     :rtype: string
     """
     a = APK(path)
-    d = DalvikVMFormat(a)
+    d = DalvikVMFormat(a) #echec de cette ligne sur certaine apk
     properties = np.array([])
     classes = {'total': 0, 'total_characters': 0, 'total_distance': 0, 'l1': 0, 'l2': 0, 'l3': 0, 'last_id': None}
     methods = {'total': 0, 'total_characters': 0, 'total_distance': 0, 'l1': 0, 'l2': 0, 'l3': 0, 'last_id': None}
@@ -257,9 +257,7 @@ def create_dataset(root_dir, new_root_dir): #root_dir=options.dataset_dir, new_d
 def create_dataset_androguard_IR(root_dir, new_dataset): #root_dir=options.dataset_dir, new_dataset=options.dataset_dest
 
     total = 0
-    print(root_dir)
     for _ in glob.iglob(root_dir + '**/*.apk', recursive=True):
-        print(_)
         total += 1
 
     data = np.empty((0,len(features_IR) + 2 + 1))
@@ -269,7 +267,6 @@ def create_dataset_androguard_IR(root_dir, new_dataset): #root_dir=options.datas
             try:
                 properties = get_properties_IR(apk_file)
                 data = np.append(data, [np.append([apk_file], np.append(properties, get_new_target(apk_file)))], axis=0)
-                print(data)
                 #data = np.append(data, [np.append([apk_file], np.append(properties, [1,0,0,0]))], axis=0)  #fixed target
                 pbar.update(1)
             except Exception as e:
