@@ -146,7 +146,7 @@ def load_new_light_dataset(data_folder_name, target=None, training_set_part = 0.
         total += 1
 
     with tqdm(total=total) as pbar:
-        for file in glob.iglob(data_folder_name + '**/*.' + extension, recursive=True):
+        for file in sorted(glob.iglob(data_folder_name + '**/*.' + extension, recursive=True)):
             data = np.append(data, np.array([file]))
             pbar.update(1)
 

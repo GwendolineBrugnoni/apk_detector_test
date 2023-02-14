@@ -59,7 +59,7 @@ def create_words_count(dataset_name):
     file = open(dataset_name + ".pv", "w")
 
     with tqdm(total=total) as pbar:
-        for path in Path(data_folder_name).glob('**/*.txt'):
+        for path in sorted(Path(data_folder_name).glob('**/*.txt')):
             document = [0 for _ in notewhorty_words]
             f = open(str(path), "r")
             text = f.read()
@@ -95,7 +95,7 @@ def create_tfidf(dataset_name):
 
     logging.info("FITTING WORDS")
     with tqdm(total=total) as pbar:
-        for path in Path(data_folder_name).glob('**/*.txt'):
+        for path in sorted(Path(data_folder_name).glob('**/*.txt')):
             document = [0 for _ in notewhorty_words]
             f = open(str(path), "r")
             text = f.read()
@@ -112,7 +112,7 @@ def create_tfidf(dataset_name):
 
     logging.info("COMPUTE TF-IDF WORDS")
     with tqdm(total=total) as pbar:
-        for path in Path(data_folder_name).glob('**/*.txt'):
+        for path in sorted(Path(data_folder_name).glob('**/*.txt')):
             document = [0 for _ in notewhorty_words]
             f = open(str(path), "r")
             text = f.read()

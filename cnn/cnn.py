@@ -64,7 +64,7 @@ def load_dataset(root_dir):
             total += 1
 
         with tqdm(total=total) as pbar:
-            for img_file in glob.iglob(images_root_dir + '**/*.jpeg', recursive=True):
+            for img_file in sorted(glob.iglob(images_root_dir + '**/*.jpeg', recursive=True)):
                 image = Image.open(img_file, 'r')
                 X = np.asarray(image).reshape(-1)[int((2640 ** 2 * levels - IMG_SIZE ** 2 * levels) / 2):int((
                                                                                                                          2640 ** 2 * levels - IMG_SIZE ** 2 * levels) / 2 + IMG_SIZE ** 2 * levels)]  # immagine ridotta per performace

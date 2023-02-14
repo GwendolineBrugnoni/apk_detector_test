@@ -208,6 +208,7 @@ def process_trainset(train_X, test_X, data_type):
 def process_new_trainset(train_X, data_type):
     X = {}
     for x in train_X:
+        print(x)
         X[x[0]] = np.array(x[1:],dtype=data_type)
     return X
 

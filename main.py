@@ -87,24 +87,44 @@ def main():
     if options.preprocessing == 'true':
         preprocessing(options.dataset_text_dir, options.dataset_dest)
 
-    # get_true_csv(options.dataset_dest)
-    # get_androdet_score(options.dataset_dest)
+    get_true_csv(options.dataset_dest)
+    get_androdet_score(options.dataset_dest)
     get_bow_score(options.dataset_dest)
-    # get_cnn_score(options.dataset_dest)
-    # get_hybrid_score(options.dataset_dest)
+    get_cnn_score(options.dataset_dest)
+    get_hybrid_score(options.dataset_dest)
 
     # creation du fichier CSV qui fusionne tous
 
-    # df = pd.read_csv("score.csv")
-    # androdet = pd.read_csv("androdet.csv")
-    # bow = pd.read_csv("bow.csv")
-    # cnn = pd.read_csv("Cnn.csv")
-    # hybrid = pd.read_csv("Hybrid.csv")
-    # score = pd.concat([pd.concat([pd.concat([pd.concat([df, androdet],axis=1),bow],axis=1),cnn],axis=1),hybrid],axis=1)
-    # score.to_csv("final.csv",index=False)
+    df = pd.read_csv("score.csv")
+    androdet = pd.read_csv("androdet.csv")
+    bow = pd.read_csv("bow.csv")
+    cnn = pd.read_csv("Cnn.csv")
+    hybrid = pd.read_csv("Hybrid.csv")
+    score = pd.concat([pd.concat([pd.concat([pd.concat([df, androdet],axis=1),bow],axis=1),cnn],axis=1),hybrid],axis=1)
+    score.to_csv("final.csv",index=False)
 
     # test de score csv pour avoir la mesure F1
-
-
+    # print(score.shape)
+    # tp = 0
+    # tn = 0
+    # fp = 0
+    # fn = 0
+    # for index, row in score.iterrows():
+    #
+    #     if('malware' in row['Filename']):
+    #         if row['True_score']==1:
+    #             if row['HybridSE'] == 1:
+    #                 tp += 1
+    #             else:
+    #                 fp += 1
+    #         else:
+    #             if row['HybridSE'] == 0:
+    #                 tn += 1
+    #             else:
+    #                 fn += 1
+    # precision = tp / (tp + fp) if tp + fp != 0 else 0
+    # recall = tp / (tp + fn) if tp + fn != 0 else 0
+    # f1_score = 2 * precision * recall / (precision + recall) if precision + recall != 0 else 0
+    # print( precision, recall, f1_score)
 if __name__ == '__main__':
     main()

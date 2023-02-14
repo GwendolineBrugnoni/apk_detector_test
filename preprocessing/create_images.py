@@ -95,7 +95,7 @@ def prepare_img_dataset(type='bw'):
         total += 1
 
     already_done = []
-    for apk_file in glob.iglob(images_root_dir + '**/*.jpeg', recursive=True):
+    for apk_file in sorted(glob.iglob(images_root_dir + '**/*.jpeg', recursive=True)):
         m = re.match(images_root_dir + "(.*)\/(.+).jpeg", apk_file)
         path = m.group(1)
         filename = m.group(2)
@@ -103,7 +103,7 @@ def prepare_img_dataset(type='bw'):
 
 
     with tqdm(total=total) as pbar:
-        for apk_file in glob.iglob(root_dir + '**/*.apk', recursive=True):
+        for apk_file in sorted(glob.iglob(root_dir + '**/*.apk', recursive=True)):
             try:
                 m = re.match(root_dir + "(.*)\/(.+).apk", apk_file)
                 path = m.group(1)
@@ -123,7 +123,7 @@ def prepare_img_dataset(type='bw'):
 
 def get_max_size(): #2640
     max_size = 0
-    for apk_file in glob.iglob(images_root_dir + '**/*.jpeg', recursive=True):
+    for apk_file in sorted(glob.iglob(images_root_dir + '**/*.jpeg', recursive=True)):
         img = Image.open(apk_file)
         size = img.size[0]
         if size > max_size:
@@ -154,7 +154,7 @@ def reformat_all_images(type='bw'):
         total += 1
 
     with tqdm(total=total) as pbar:
-        for img_file in glob.iglob(images_root_dir + '**/*.jpeg', recursive=True):
+        for img_file in sorted(glob.iglob(images_root_dir + '**/*.jpeg', recursive=True)):
             reformat_image(img_file, type)
             pbar.update(1)
 

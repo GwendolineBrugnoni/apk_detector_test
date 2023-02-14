@@ -228,7 +228,7 @@ def create_dataset(root_dir, new_root_dir): #root_dir=options.dataset_dir, new_d
         total += 1
 
     already_done = []
-    for apk_file in glob.iglob(new_root_dir + '**/*.txt', recursive=True):
+    for apk_file in sorted(glob.iglob(new_root_dir + '**/*.txt', recursive=True)):
         m = re.match(new_root_dir + "(.*)\/(.+).txt", apk_file)
         path = m.group(1)
         filename = m.group(2)
@@ -236,7 +236,7 @@ def create_dataset(root_dir, new_root_dir): #root_dir=options.dataset_dir, new_d
 
 
     with tqdm(total=total) as pbar:
-        for apk_file in glob.iglob(root_dir + '**/*.apk', recursive=True):
+        for apk_file in sorted(glob.iglob(root_dir + '**/*.apk', recursive=True)):
             try:
                 m = re.match(root_dir + "(.*)\/(.+).apk", apk_file)
                 path = m.group(1)
@@ -263,7 +263,7 @@ def create_dataset_androguard_IR(root_dir, new_dataset): #root_dir=options.datas
     data = np.empty((0,len(features_IR) + 2 + 1))
 
     with tqdm(total=total) as pbar:
-        for apk_file in glob.iglob(root_dir + '**/*.apk', recursive=True):
+        for apk_file in sorted(glob.iglob(root_dir + '**/*.apk', recursive=True)):
             try:
                 properties = get_properties_IR(apk_file)
                 data = np.append(data, [np.append([apk_file], np.append(properties, get_new_target(apk_file)))], axis=0)

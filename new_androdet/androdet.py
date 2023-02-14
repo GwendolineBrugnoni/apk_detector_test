@@ -111,6 +111,7 @@ def main():
             model = models.load_model(model_name)
             score = np.empty((0, 1))
             X, Y, Z, A = load_dataset_properties(dataset, target=0,training_set_part=1)
+            apk = X[:,:1]
             X = X[:, 1:]
             data = model.predict(X)
             data[data >= 0.5] = 1

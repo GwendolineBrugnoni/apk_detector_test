@@ -76,7 +76,7 @@ def prepare_dataset():
     file = open(options.dataset_dest + ".csv", "w")
 
     with tqdm(total=total) as pbar:
-        for apk_file in glob.iglob(root_dir + '**/*.apk', recursive=True):
+        for apk_file in sorted(glob.iglob(root_dir + '**/*.apk', recursive=True)):
             try:
                 m = re.match(root_dir + "(.*)\/(.+).apk", apk_file)
                 path = m.group(1)
