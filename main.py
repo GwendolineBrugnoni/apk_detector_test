@@ -20,6 +20,7 @@ from common import get_target, get_new_target
 # TODO : Regler ces problème de shell en modifiant les autres fichier pour pouvoir les appeller autrement (là ça donne
 #  envie de pleurer !) et en profiter pour regler le pb d'import de common.
 def preprocessing(dataset, destination):
+    print("PREPROCESSING")
     os.system(
         "cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-parser.csv -t androdet_IR")
     os.system("cd preprocessing && python apk-parser.py -s ../" + dataset + "/ -d ../" + destination + "-opcode/")
@@ -65,7 +66,28 @@ def get_hybrid_score(destination):
                                         "--dataset-entropy ../" + destination + "-entropy.csv " \
                                                                                 "-f true"
     os.system(cmd)
-
+def clean(destination):
+    os.system("mkdir "+ destination + "-sauvegarde")
+    cmd = "mv "+destination + "-parser.csv " + destination + "-sauvegarde"
+    os.system(cmd)
+    cmd = "mv " + destination + "-entropy.csv " + destination + "-sauvegarde"
+    os.system(cmd)
+    cmd = "mv " + destination + "-tfidf.pv " + destination + "-sauvegarde"
+    os.system(cmd)
+    cmd = "mv " + destination + "-img " + destination + "-sauvegarde"
+    os.system(cmd)
+    cmd = "mv " + destination + "-opcode " + destination + "-sauvegarde"
+    os.system(cmd)
+    # cmd = "mv final.csv " + destination + "-sauvegarde"
+    # os.system(cmd)
+    # cmd = "mv Hybrid.csv" + destination + "-sauvegarde"
+    # os.system(cmd)
+    # cmd = "mv score.csv" + destination + "-sauvegarde"
+    # os.system(cmd)
+    # cmd = "mv bow.csv" + destination + "-sauvegarde"
+    # os.system(cmd)
+    # cmd = "mv Cnn.csv" + destination + "-sauvegarde"
+    # os.system(cmd)
 
 def main():
     # recuperation des vrai score et des noms en fusionnant les 4 cathégorie
@@ -86,7 +108,7 @@ def main():
 
     if options.preprocessing == 'true':
         preprocessing(options.dataset_text_dir, options.dataset_dest)
-
+    #
     get_true_csv(options.dataset_dest)
     get_androdet_score(options.dataset_dest)
     get_bow_score(options.dataset_dest)
@@ -102,23 +124,22 @@ def main():
     hybrid = pd.read_csv("Hybrid.csv")
     score = pd.concat([pd.concat([pd.concat([pd.concat([df, androdet],axis=1),bow],axis=1),cnn],axis=1),hybrid],axis=1)
     score.to_csv("final.csv",index=False)
+    score = pd.read_csv("final.csv")
 
-    # test de score csv pour avoir la mesure F1
+    # # test de score csv pour avoir la mesure F1
     # print(score.shape)
     # tp = 0
     # tn = 0
     # fp = 0
     # fn = 0
     # for index, row in score.iterrows():
-    #
-    #     if('malware' in row['Filename']):
-    #         if row['True_score']==1:
-    #             if row['HybridSE'] == 1:
+    #         if row['HybridT']==1 or row['HybridSE']==1 or row['HybridR']==1 or row['HybridSE']==1:
+    #             if row['True_score'] == 1:
     #                 tp += 1
     #             else:
     #                 fp += 1
     #         else:
-    #             if row['HybridSE'] == 0:
+    #             if row['True_score'] == 0:
     #                 tn += 1
     #             else:
     #                 fn += 1
@@ -126,5 +147,6 @@ def main():
     # recall = tp / (tp + fn) if tp + fn != 0 else 0
     # f1_score = 2 * precision * recall / (precision + recall) if precision + recall != 0 else 0
     # print( precision, recall, f1_score)
+    # clean(options.dataset_dest)
 if __name__ == '__main__':
     main()

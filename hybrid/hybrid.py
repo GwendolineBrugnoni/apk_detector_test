@@ -208,12 +208,18 @@ def process_trainset(train_X, test_X, data_type):
 def process_new_trainset(train_X, data_type):
     X = {}
     for x in train_X:
-        print(x)
         X[x[0]] = np.array(x[1:],dtype=data_type)
     return X
 
 def fusion():
     logging.info("PREPARE DATASET")
+    df = pd.read_csv(options.dataset_entropy, sep=" ", header=None)
+    zero = []
+    del df[df.columns[-1]]
+    for i in range(np.shape(df)[0]):
+        zero.append([0, 0, 0])
+    df = pd.concat([df, pd.DataFrame(zero)], axis=1)
+    df.to_csv(options.dataset_entropy, sep=" ", header=None, index=False)
     train_X1= load_new_light_dataset(images_root_dir, target=0,training_set_part=1, extension='jpeg')
     train_X2, _, _, _ = load_dataset(options.dataset_bow,target=0,training_set_part=1)
     train_X3, _, _, _ = load_dataset(options.dataset_entropy,target=0,training_set_part=1)
@@ -238,7 +244,8 @@ def fusion():
         for i, img_file in enumerate(train_X1):
             image = Image.open(img_file, 'r')
             image_X = np.asarray(image).reshape(1, IMG_SIZE, IMG_SIZE, levels)
-
+            print(androdet_X)
+            print(get_apk_file(img_file))
             androdet_x = androdet_X[get_apk_file(img_file)].reshape(1, ANDRODET_SIZE)
             entropy_x = entropy_X[get_original_file(img_file)].reshape(1, 1)
             nlp_x = nlp_X[get_original_old_file(img_file) + '.txt'].reshape(1, NLP_SIZE)

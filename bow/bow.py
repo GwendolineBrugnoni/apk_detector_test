@@ -103,21 +103,22 @@ def main():
     input_size = train_X.shape[1]
     output_size = train_Y.shape[1]
 
-    try:
-        if options.fusion == 'true':
-            model = models.load_model(model_name)
-            score = np.empty((0, 1))
-            X, Y, Z, A = load_dataset(dataset, target=target,training_set_part=1)
-            X = X[:, 1:]
-            data = model.predict(X)
-            data[data >= 0.5] = 1
-            data[data < 0.5] = 0
+    # try:
+    if options.fusion == 'true':
+        model = models.load_model(model_name)
+        score = np.empty((0, 1))
+        X, Y, Z, A = load_dataset(dataset, target=target,training_set_part=1)
+        X = X[:, 1:]
+        print(X[0])
+        data = model.predict(X)
+        data[data >= 0.5] = 1
+        data[data < 0.5] = 0
 
-            score = pd.DataFrame(data=data, columns=['BowT', 'BowSE', 'BowR', 'BowCE'])
-            score.to_csv("../bow.csv", index=False)
-            return data
-    except:
-        raise Exception('Echec dans la génération du csv')
+        score = pd.DataFrame(data=data, columns=['BowT', 'BowSE', 'BowR', 'BowCE'])
+        score.to_csv("../bow.csv", index=False)
+        return data
+    # except:
+    #     raise Exception('Echec dans la génération du csv')
     try:
         if options.train == 'true':
             raise Exception('Force train model')

@@ -96,23 +96,32 @@ def main():
 
     # Create train and test set
     train_X, train_Y, test_X, test_Y = load_dataset_properties_original(dataset, target=0)
+#[ 0.23172642  7.         22.          3.          4.91891892  0.17340134
+#  7.         11.          0.         12.54545455  0.43449413  0.
+ # 0.          0.        ]
 
-    train_names = train_X[:,0]
+#[1.8666666666666667 0.36666666666666653 4.0 26.0 0.0 3.8666666666666663
+# 0.10666666666666667 4.0 16.0 0.0 6.0 0.6 0.0 0.0 0.0]
+
+
+    # train_names = train_X[:,0]
     train_X = train_X[:,1:]
-    test_names = test_X[:,0]
+    print(train_X[0])
+
+    # test_names = test_X[:,0]
     test_X = test_X[:,1:]
 
-    train_size = train_X.shape[0]
-    test_size = test_X.shape[0]
+    # train_size = train_X.shape[0]
+    # test_size = test_X.shape[0]
     input_size = train_X.shape[1]
     output_size = train_Y.shape[1]
     try:
         if options.fusion == 'true':
             model = models.load_model(model_name)
-            score = np.empty((0, 1))
             X, Y, Z, A = load_dataset_properties(dataset, target=0,training_set_part=1)
-            apk = X[:,:1]
+            print(X[0])
             X = X[:, 1:]
+            print(X[0])
             data = model.predict(X)
             data[data >= 0.5] = 1
             data[data < 0.5] = 0

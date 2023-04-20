@@ -11,15 +11,15 @@ from common import scores, load_dataset
 # print(predu.iloc[1,].values)
 # pred, _, _, _ = load_dataset('dataset_tfidf.pv',target=0,training_set_part=1)
 # print(pred[0])
-def count_indentifier(identifier):
-    length = len(identifier)
-    if length == 1:
-        print(identifier)
-    elif length == 2:
-        print(identifier)
-    elif length == 3:
-        print(identifier)
-#
+# def count_indentifier(identifier):
+#     length = len(identifier)
+#     if length == 1:
+#         print(identifier)
+#     elif length == 2:
+#         print(identifier)
+#     elif length == 3:
+#         print(identifier)
+# #
 # data = pd.read_csv("androdetPraGuard.csv")
 # i=0
 # while i < data.shape[0]:
@@ -32,7 +32,9 @@ def count_indentifier(identifier):
 #         print('non')
 #     i += 1
 
-# a = APK('apk-clean/benines/non_obfusqués/0ebb5c986caa77e370f99af9f9c580ed21bbc2ec5f311f8ab4f44be947559b76.apk')
+# a = APK('dataset/benines/non_obfusqués/01bc3e19315eadfaf8f2f78bf8c188523697241e58e1124c6c2cc301b1e7b05e.apk') #bow
+# a = APK('dataset/benines/non_obfusqués/048db14d6e71d7b3a2a41689f0dc6f905950f1ac15a9bde8d549a63abb2f2804.apk')
+#
 # d = DalvikVMFormat(a) #echec de cette ligne sur certaine apk
 # for c in d.get_classes():
 #     for m in c.get_methods():
@@ -40,8 +42,8 @@ def count_indentifier(identifier):
 #         count_indentifier(m.get_name())
 #     for f in c.get_fields():
 #         print("f.get_name : " + f.get_name())
-        # count_indentifier(f.get_name())
-    # print("c.get_name : "+ )
+#         count_indentifier(f.get_name())
+#     print("c.get_name : "+ c.get_name())
 
 
 '''
@@ -69,11 +71,27 @@ c.get_name : Ll/f/b/k/f;
 c.get_name : Ll/f/b/k/k;
 c.get_name : Ll/f/b/k/m/c;
 '''
-def zero(fichier):
-    df = pd.read_csv(fichier, sep=" ", header=None)
-    for index, row in df.iterrows():
-        row.append(pd.Series([0,0,0]))
-        print(row)
-    df.to_csv('zero.csv', sep = " ",header=None)
+# def zero(fichier):
+#     df = pd.read_csv(fichier, sep=" ", header=None)
+#     zero = []
+#     del df[df.columns[-1]]
+#     for i in range(np.shape(df)[0]):
+#         print(i)
+#         zero.append([0,0,0,])
+#     df = pd.concat([df,pd.DataFrame(zero)],axis=1)
+#     df.to_csv('zero.csv', sep = " ",header=None,index=False)
+#
+# # zero('test-entropy.csv')
+# df = pd.read_csv('reflexion-entropy.csv', sep=" ", header=None)
+# del df[df.columns[-1]]
+# del df[df.columns[-1]]
+# df.to_csv('reflexion-entropy.csv', sep = " ",header=None,index=False)
 
-zero('apk-clean-entropy.csv')
+df = pd.read_csv("tdif.pv",sep=' ',header=None)
+print(df[1:2])
+# print(df[26])
+# print(df[27])
+# print(df[28])
+del(df[28])
+del(df[29])
+df.to_csv("test_dataset_tfidf.pv",index=False,sep=" ")

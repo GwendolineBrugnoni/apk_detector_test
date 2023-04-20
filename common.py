@@ -31,6 +31,7 @@ def scores(preds, test_Y):
         f1_score = 2*precision*recall/(precision+recall) if precision+recall != 0 else 0
         return precision, recall, f1_score
     else:
+        print(test_Y.shape)
         num_classes = test_Y.shape[1]
         samples = [{'tp': 0, 'tn': 0, 'fp': 0, 'fn': 0} for _ in range(num_classes)]
         for pred, test in zip(preds, test_Y):
@@ -48,6 +49,9 @@ def scores(preds, test_Y):
         precisions = list(map(lambda x: x['tp']/(x['tp']+x['fp']) if x['tp']+x['fp'] != 0 else 0, samples))
         recalls = list(map(lambda x: x['tp']/(x['tp']+x['fn']) if x['tp']+x['fn'] != 0 else 0, samples))
         f1_scores = list(map(lambda x: 2*x[0]*x[1]/(x[0]+x[1]) if x[0]+x[1] != 0 else 0, zip(precisions, recalls)))
+        (list(map(lambda x: print( "tp : ",x['tp']," tn : ",x['tn']," fp : ",x['fp']," fn : ",x['fn']) ,samples)))
+
+        # print("tp : ",sample['tp']," tn : ",sample['tn']," fp : ",sample['fp']," fn : ",sample['fn'])
         return precisions, recalls, f1_scores
 
 def load_dataset_original(input_file, target = None, training_set_part = 0.8):
@@ -77,6 +81,7 @@ def load_dataset(input_file, target = None, training_set_part = 0.8):
     # df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows mis en commentaire pour pouvoir fusionner dans le bon ordre
     X = df.iloc[:,0:-3].values #on a modifié le -5 en -3
     # TODO : ce truc est debile ....
+    print("targer = ", target)
     if target == None:
         Y = df.iloc[:,-3:-1].values
     else:
@@ -119,9 +124,11 @@ A noter que le code comme modifier actuellement ne pourra plus générer de mode
 '''
 # target: [0=TRIVIAL,1=STRING,2=REFLECTION,3=CLASS]
 def load_dataset_properties(input_file, target = 3, training_set_part = 0.8):
-    df = pd.read_csv(input_file)
+    df = pd.read_csv(input_file,sep=',')
     # df = df.sample(frac=1).reset_index(drop=True)  # shuffle rows mis en commentaire pour pouvoir faire la fusion
+    print(df.head(10))
     X = df.iloc[:,1:-2].values
+    # print(X.head(10))
     Y = df.iloc[:,target-2:target-1].values # on enleve le nombre de colonnes de resultat ici deux avec malwares et obfusqués
 
     total_items = X.shape[0]
